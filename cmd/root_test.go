@@ -23,16 +23,7 @@ func TestIsInputValid(t *testing.T) {
 		t.Run("IsInputValid #"+strconv.Itoa(i), func(t *testing.T) {
 			// given
 			if tt.pluginLocation != "" {
-				base := t.TempDir()
-				pluginFile := filepath.Join(base, tt.pluginLocation)
-				file, err := os.Create(pluginFile)
-				if err != nil {
-					t.Fatalf("Failed to create temp dir %q", pluginFile)
-				}
-				file.Close()
-				cmdInput.PluginLocation = pluginFile
-			} else {
-				cmdInput.PluginLocation = ""
+				cmdInput.PluginLocation = createPluginAtTempDir(tt.pluginLocation, t)
 			}
 			cmdInput.EngineVersions = tt.engineVersions
 
@@ -49,14 +40,7 @@ func TestIsInputValid(t *testing.T) {
 
 func TestValidPluginLocation(t *testing.T) {
 	// given
-	base := t.TempDir()
-	pluginFile := filepath.Join(base, "MyPlugin.uplugin")
-	file, err := os.Create(pluginFile)
-	if err != nil {
-		t.Fatal("Failed to create test plugin file.")
-	}
-	file.Close()
-	cmdInput.PluginLocation = pluginFile
+	cmdInput.PluginLocation = createPluginAtTempDir("MyPlugin.uplugin", t)
 
 	// when
 	actual := isPluginLocationValid()
@@ -113,6 +97,17 @@ func TestIsEngineVersionsValid(t *testing.T) {
 }
 
 // create data for tests
+func createPluginAtTempDir(pluginName string, t *testing.T) string {
+	base := t.TempDir()
+	pluginFile := filepath.Join(base, pluginName)
+	file, err := os.Create(pluginFile)
+	if err != nil {
+		t.Fatalf("Failed to create temp dir %q", pluginFile)
+	}
+	file.Close()
+	return pluginFile
+}
+
 func createEngineVersionsTestData() []engineVersionTestData {
 	return []engineVersionTestData{
 		{
