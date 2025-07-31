@@ -1,7 +1,21 @@
-### What it's for
+### What's it for
 Building unreal engine code plugins in a batch, targeting the specified versions
 
 ### What extra do I need
+ - a `config.json` file **in the same folder as the exe** that defines 
+   - `engineBaseDirectory`: the engine base directory (until and without the version name)
+   - `buildScriptPath`: the build script path within the engine directory
+   - `outputBaseDirectory`: a base directory for the output
+   - `pluginPath`: the path to the uplugin file to build
+   - `docsPath`: (optional) the documentation path
+ - a `FilterPlugin.ini` file **in the same folder as the exe**
+   - **ONLY if you also add documentation**
+  Contents something like
+  ```
+  [FilterPlugin]
+  /Documentation/My_Plugin_Documentation.pdf
+  ```
+where this path, under the release dir, will be created, and the provided docs file will be copied into it, with this name.
  - a `config.json` file **in the same folder as the exe** that defines 
    - `engineBaseDirectory`: the engine base directory (until and without the version name)
    - `buildScriptPath`: the build script path within the engine directory
