@@ -16,20 +16,6 @@ Building unreal engine code plugins in a batch, targeting the specified versions
   /Documentation/My_Plugin_Documentation.pdf
   ```
 where this path, under the release dir, will be created, and the provided docs file will be copied into it, with this name.
- - a `config.json` file **in the same folder as the exe** that defines 
-   - `engineBaseDirectory`: the engine base directory (until and without the version name)
-   - `buildScriptPath`: the build script path within the engine directory
-   - `outputBaseDirectory`: a base directory for the output
-   - `pluginPath`: the path to the uplugin file to build
-   - `docsPath`: (optional) the documentation path
- - a `FilterPlugin.ini` file **in the same folder as the exe**
-   - **ONLY if you also add documentation**
-  Contents something like
-  ```
-  [FilterPlugin]
-  /Documentation/My_Plugin_Documentation.pdf
-  ```
-where this path, under the release dir, will be created, and the provided docs file will be copied into it, with this name.
 
 ### How to use
  - build the project if you haven't already
@@ -45,10 +31,10 @@ This is implemented for Windows, but for Unix, go to the `executor` package and 
 
 With documentation, if its path is set in the config file:   
 ```
-.\unreal-plugin-release.exe --engine-versions=5.2,5.3,5.4,5.5,5.6 
+.\PluginBuilder.exe --engine-versions=5.2,5.3,5.4,5.5,5.6 
 ```
 
 Without documentation, even if the path it set in the config file:
 ```
-.\unreal-plugin-release.exe --engine-versions=5.2,5.3,5.4,5.5,5.6 --skip-docs
+.\PluginBuilder.exe --engine-versions=5.2,5.3,5.4,5.5,5.6 --skip-docs
 ```
