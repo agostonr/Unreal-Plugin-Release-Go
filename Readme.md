@@ -1,5 +1,5 @@
 ### What's it for
-Building unreal engine code plugins in a batch, targeting the specified versions
+Building unreal engine plugins in a batch, targeting the specified versions
 
 ### Notice
 The SHA-256 hash of the built `PluginBuilder.exe` is `5c5c1a8def7ace270c09451e6cf9d2132651914e92f9a3aeb28ca21911e9f2a3`  
