@@ -6,11 +6,11 @@ type Config struct {
 	EngineBaseDirectory string `json:"engineBaseDirectory"`
 	BuildScriptPath     string `json:"buildScriptPath"`
 	OutputBaseDirectory string `json:"outputBaseDirectory"`
+	PluginPath          string `json:"pluginPath"`
+	DocsPath            string `json:"docsPath"`
 }
 
-// command line input, different per plugin release
 type CmdInput struct {
 	EngineVersions string
-	PluginLocation string
-	DocsPath       string
+	SkipDocs       bool
 }

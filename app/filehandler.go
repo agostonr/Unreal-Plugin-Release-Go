@@ -15,35 +15,55 @@ import (
 /*
 Create the configuration dto from the config file, by location.
 */
-func CreateConfig(path string) *model.Config {
+func CreateConfig(path string) (*model.Config, error) {
 	file := openConfigFile(path)
 	decoder := json.NewDecoder(file)
+	defer file.Close()
 	config := model.Config{}
 	if err := decoder.Decode(&config); err != nil {
-		fmt.Println("Error parsing config file:", err)
-		os.Exit(1)
+		return nil, err
 	}
-
-	return &config
+	return &config, nil
 }
 
 /*
 Get the full path for the given file that's next to the executable.
 */
-func GetFullPathForFileInExecDir(filename string) string {
-	exePath, err := os.Executable()
-	if err != nil {
-		panic("Executable file not found")
-	}
+func GetFullPathForFileInExecDir(exePath, filename string) string {
 	return filepath.Join(filepath.Dir(exePath), filename)
 }
 
 /*
-Determines if the path exists.
+Determines if the path exists and is valid.
 */
 func IsPathExist(path string) bool {
 	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
+	return err == nil
+}
+
+/*
+Determines if two paths are the same.
+*/
+func IsPathEqual(p1 string, p2 string) bool {
+	abs1, err1 := filepath.Abs(filepath.Clean(p1))
+	abs2, err2 := filepath.Abs(filepath.Clean(p2))
+
+	if err1 != nil || err2 != nil {
+		return false
+	}
+
+	return abs1 == abs2
+}
+
+/*
+Determines if a path is a file.
+*/
+func IsFile(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
 }
 
 func openConfigFile(path string) *os.File {
@@ -67,12 +87,12 @@ func createBatFilePath(engineBaseDir string, version string, buildScriptPath str
 	return filepath.Join(engineBaseDir, "UE_"+version, buildScriptPath)
 }
 
-func validateFilePath(path string) error {
+func isFilePathValid(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return err
+		return false
 	}
 
-	return nil
+	return true
 }
 
 func removeDirectory(path string) {
@@ -111,7 +131,7 @@ func deleteSubFolder(baseDir string, dirToDelete string) {
 	}
 }
 
-func createConfigFolderWithIni(releaseDir string) error {
+func createConfigFolderWithIni(releaseDir string, sourceIniPath string) error {
 	configDir := filepath.Join(releaseDir, model.ConfigDirectoryName)
 	if err := os.MkdirAll(configDir, os.ModePerm); err != nil {
 		fmt.Println("⚠️ Failed to create Config dir:", err)
@@ -119,7 +139,7 @@ func createConfigFolderWithIni(releaseDir string) error {
 	}
 
 	destIni := filepath.Join(configDir, model.PluginConfigurationIniFileName)
-	if err := copyFile(model.PluginConfigurationIniFileName, destIni); err != nil {
+	if err := copyFile(sourceIniPath, destIni); err != nil {
 		fmt.Println("⚠️ Failed to copy INI file:", err)
 		return err
 	}
@@ -127,9 +147,9 @@ func createConfigFolderWithIni(releaseDir string) error {
 	return nil
 }
 
-func copyPdfIntoDocsFolderAndRename(releaseDir string, docsPath string) error {
+func copyPdfIntoDocsFolderAndRename(releaseDir string, docsPath string, filterPluginFilePath string) error {
 	// 1. Read FilterPlugin.ini next to the .exe
-	filterData, err := os.ReadFile(GetFullPathForFileInExecDir(model.PluginConfigurationIniFileName))
+	filterData, err := os.ReadFile(filterPluginFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to read FilterPlugin.ini: %w", err)
 	}
